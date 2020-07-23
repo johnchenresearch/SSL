@@ -31,7 +31,7 @@ FLAGS = flags.FLAGS
 class TranslationConsistencyRegularization(models.MultiModel):
     def augment(self, x, tcr_augment, **kwargs):
         del kwargs
-        for augmentation in tcr_augment:
+        # for augmentation in tcr_augment:
             # if augmentation == "rotate":
             #     # Taken from ctaugment.
             #     rotate
@@ -60,7 +60,7 @@ class TranslationConsistencyRegularization(models.MultiModel):
         # Unlabeled data.
         classifier_embedding = lambda x, **kw: self.classifier(x, **kw, **kwargs).embeds
         y = tf.reshape(tf.transpose(y_in, [1, 0, 2, 3, 4]), [-1] + hwc)
-        y_delta = self.augment(y, augment=tcr_augment) # Apply tcr_augment
+        y_delta = self.augment(y, tcr_augment=tcr_augment) # Apply tcr_augment
         y_1, y_2 = tf.split(y, 2)
         y_1_delta, y_2_delta = tf.split(y_delta, 2)
         embeds_y_1 = classifier_embedding(y_1, training=True)
@@ -113,6 +113,7 @@ def main(argv):
         ema=FLAGS.ema,
         smoothing=FLAGS.smoothing,
         consistency_weight=FLAGS.consistency_weight,
+        tcr_augment=FLAGS.tcr_augment,
 
         scales=FLAGS.scales or (log_width - 2),
         filters=FLAGS.filters,
@@ -139,5 +140,5 @@ if __name__ == '__main__':
     # and no augmentation for unlabeled samples. tcr_augment is applied on top of unlabeled samples.
     FLAGS.set_default('augment', 'd.d.d') 
     # List of augment functions separated by . on top of existing augment. Currently only rotate is supported.
-    FLAGS.set_default('tcr_augment', 'rotate') 
+    flags.DEFINE_string('tcr_augment', 'rotate', 'Augmentation for tcr loss.') 
     app.run(main)
