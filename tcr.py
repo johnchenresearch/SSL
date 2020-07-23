@@ -23,6 +23,7 @@ from absl import flags
 
 from libml import utils, data, models
 from libml.utils import EasyDict
+from libml import ctaugment
 
 FLAGS = flags.FLAGS
 
@@ -31,7 +32,10 @@ class TranslationConsistencyRegularization(models.MultiModel):
     def augment(self, x, tcr_augment, **kwargs):
         del kwargs
         for augmentation in tcr_augment:
-            if augmentation == "rotate":
+            # if augmentation == "rotate":
+            #     # Taken from ctaugment.
+            #     rotate
+        return x
 
 
 
@@ -63,7 +67,9 @@ class TranslationConsistencyRegularization(models.MultiModel):
         embeds_y_1_delta = classifier_embedding(y_1_delta, training=True)
         embeds_y_2 = classifier_embedding(y_2, training=True)
         embeds_y_2_delta = classifier_embedding(y_2_delta, training=True)
-        loss_tcr = tf.reduce_mean()
+        loss_tcr = tf.losses.mean_squared_error((y_1_delta - y_1) - (y_2_delta - y_2))
+        loss_tcr = tf.reduce_mean(loss_tcr)
+        tf.summary.scalar('losses/xeu', loss_tcr)
 
         loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=l, logits=logits_x)
         loss = tf.reduce_mean(loss)
