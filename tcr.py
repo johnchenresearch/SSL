@@ -67,7 +67,7 @@ class TranslationConsistencyRegularization(models.MultiModel):
         embeds_y_1_delta = classifier_embedding(y_1_delta, training=True)
         embeds_y_2 = classifier_embedding(y_2, training=True)
         embeds_y_2_delta = classifier_embedding(y_2_delta, training=True)
-        loss_tcr = tf.losses.mean_squared_error((y_1_delta - y_1) - (y_2_delta - y_2))
+        loss_tcr = tf.losses.mean_squared_error((y_1_delta - y_1), (y_2_delta - y_2))
         loss_tcr = tf.reduce_mean(loss_tcr)
         tf.summary.scalar('losses/xeu', loss_tcr)
 
